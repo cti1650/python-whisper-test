@@ -46,8 +46,15 @@
 
 ## Pythonで実行
 
+  - `src/audio.mp3`ファイルの書き出し結果を表示する。
   ```
   docker-compose exec -it python3 python sample.py
+  ```
+
+
+  - inputディレクトリに音声データを格納して以下のコマンドを実行すると認識結果をoutputディレクトリに書き出しする。
+  ```
+  docker-compose exec -it python3 python main.py
   ```
 
 ## Whisper仕様
