@@ -57,7 +57,7 @@
   docker-compose exec -it python3 python main.py
   ```
 
-## Whisper仕様
+## Whisper モデル一覧
 
 ![モデル一覧](https://raw.githubusercontent.com/cm-nakamura-shogo/devio-image/main/whisper-trial-japanese/img/whisper-trial-japanese_2022-09-22-21-53-13.png)
 
