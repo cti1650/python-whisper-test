@@ -1,0 +1,15 @@
+version: "2"
+services:
+  whisper:
+    build: .
+    image: whisper
+    tty: true
+
+  python3:
+    restart: always
+    build: .
+    container_name: 'python3'
+    working_dir: '/root/src'
+    tty: true
+    volumes:
+      - ${SRC_PATH}:/root/src
