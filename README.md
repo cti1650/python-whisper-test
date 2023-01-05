@@ -49,6 +49,11 @@
   - サンプル音声の書き出し結果をコマンド上で表示する。
     ```
     docker-compose exec -it python3 python sample.py
+
+    or
+
+    # Dockerの起動と停止も合わせて実施
+    sh run_sample.sh
     ```
 
     - src/data/audio.mp3
@@ -57,6 +62,11 @@
   - `サンプル音声を変換`
     ```
     docker-compose exec -it python3 python sample2.py
+
+    or
+
+    # Dockerの起動と停止も合わせて実施
+    sh run_sample2.sh
     ```
 
     - data/sample1.mp3  
@@ -79,6 +89,11 @@
   - inputディレクトリに音声データを格納して以下のコマンドを実行すると認識結果をoutputディレクトリに書き出しする。
     ```
     docker-compose exec -it python3 python main.py
+
+    or
+
+    # Dockerの起動と停止も合わせて実施
+    sh run_main.sh
     ```
 
 ## Whisper モデル一覧
