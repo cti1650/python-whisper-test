@@ -20,11 +20,14 @@ if __name__ == '__main__':
     "tiny",
     "base",
     "small",
-    "medium"
+    "medium",
+    # "large"
   ]
 
   print("start")
   for model_name in model_list:
+    if not model_name:
+      continue
     # 変換の実行
     print(f"model: {model_name}")
     model = whisper.load_model(model_name)
