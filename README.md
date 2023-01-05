@@ -46,10 +46,34 @@
 
 ## Pythonで実行
 
-  - `src/audio.mp3`ファイルの書き出し結果を表示する。
+  - サンプル音声の書き出し結果をコマンド上で表示する。
     ```
     docker-compose exec -it python3 python sample.py
     ```
+
+    - src/data/audio.mp3
+      > イスタンブールは世界で唯一アジア大陸とヨーロッパ大陸にまたがる街で、この2つの大陸を分けているのがボスポラス海峡です。アジアとヨーロッパの間を進んでいく、壮大な体験ができる、ボスポラス海峡クルーズを単納していただく予定です。
+
+  - `サンプル音声を変換`
+    ```
+    docker-compose exec -it python3 python sample2.py
+    ```
+
+    - data/sample1.mp3  
+      > 貴社の記者が汽車で帰社した。
+
+    - data/sample2.mp3
+      > この意見は革新的で核心を突いたものと私は確信している。
+
+    - data/sample3.mp3
+      > 彼の遺志を医師から聞いて、それを継ぐ意志を固めた。
+
+    - data/sample4.mp3
+      > 奇怪な機械を見る機会を得た。
+
+
+    ※ 読み上げ（テキスト→音声変換）で変換(女性C)
+    https://choimitena.com/Text/Convert
 
 
   - inputディレクトリに音声データを格納して以下のコマンドを実行すると認識結果をoutputディレクトリに書き出しする。
