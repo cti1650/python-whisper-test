@@ -2,6 +2,8 @@ input/*
 !input/.gitkeep
 output/*
 !output/.gitkeep
+backup/*
+!backup/.gitkeep
 
 node_modules
 .DS_Store

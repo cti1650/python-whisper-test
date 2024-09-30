@@ -32,7 +32,9 @@ if __name__ == '__main__':  # インポート時には動かない
     print(f"model: {model_name}")
     model = whisper.load_model(model_name)
     for p in glob.iglob('../input/*'):
-      result = model.transcribe(p)
+      print("transcribe")
+      print(p)
+      result = model.transcribe(p, language="ja", verbose=True)
       result_text = result["text"]
       createTextFile(p, result_text, model_name)
       

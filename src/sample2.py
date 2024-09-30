@@ -33,7 +33,7 @@ if __name__ == '__main__':
   }
 
   print("start")
-  for p in glob.iglob('data/sample*.mp3'):
+  for p in glob.iglob('data/sample*.mp*'):
     result_list = []
     for model_name in model_list:
       if not model_name:
@@ -43,7 +43,7 @@ if __name__ == '__main__':
       if not model[model_name]:
         model[model_name] = whisper.load_model(model_name)
       start_time = time.perf_counter()
-      result = model[model_name].transcribe(p)
+      result = model[model_name].transcribe(p,language="ja")
       result_text = result["text"]
       execution_time = round(time.perf_counter() - start_time,4)
       if len(result_list) == 0:

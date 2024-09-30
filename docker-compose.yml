@@ -1,4 +1,3 @@
-version: "2"
 services:
   whisper:
     build: .
@@ -15,3 +14,7 @@ services:
       - ${SRC_PATH}:/root/src
       - ./input:/root/input
       - ./output:/root/output
+      - whisper_cache:/root/.cache/whisper
+
+volumes:
+  whisper_cache:
