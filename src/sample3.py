@@ -19,24 +19,33 @@ def highlight_diff(input_text, output_text):
   d = difflib.Differ()
   diff = list(d.compare(input_text, output_text))
   result = []
-  in_diff = False
   correct_chars = 0
-  for line in diff:
-    if line.startswith('  '):
-      if in_diff:
-        result.append('`')
-        in_diff = False
-      result.append(line[2:])
+  i = 0
+  while i < len(diff):
+    if diff[i].startswith('  '):
+      result.append(diff[i][2:])
       correct_chars += 1
-    elif line.startswith('- '):
-      continue
-    elif line.startswith('+ '):
-      if not in_diff:
-        result.append('`')
-        in_diff = True
-      result.append(line[2:])
-  if in_diff:
-    result.append('`')
+      i += 1
+    else:
+      j = i
+      deleted = []
+      added = []
+      while j < len(diff) and not diff[j].startswith('  '):
+        if diff[j].startswith('- '):
+          deleted.append(diff[j][2:])
+        elif diff[j].startswith('+ '):
+          added.append(diff[j][2:])
+        j += 1
+      
+      if deleted and added:
+        result.append(f'~~{"".join(deleted)}~~`{"".join(added)}`')
+      elif deleted:
+        result.append(f'~~{"".join(deleted)}~~')
+      elif added:
+        result.append(f'`{"".join(added)}`')
+      
+      i = j
+
   return ''.join(result), correct_chars
 
 def calculate_recognition_rate(input_text, correct_chars):
