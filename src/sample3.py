@@ -2,6 +2,7 @@ import glob
 import os
 import whisper
 import time
+import difflib
 
 def createTextFile(base_file_path, text, model_name=None):
   file_name = os.path.basename(base_file_path)
@@ -13,6 +14,28 @@ def createTextFile(base_file_path, text, model_name=None):
   print(f"output : {txt_file}")
   with open(txt_file, 'w', encoding='utf-8') as f:
     f.write(text)
+
+def highlight_diff(input_text, output_text):
+  d = difflib.Differ()
+  diff = list(d.compare(input_text, output_text))
+  result = []
+  in_diff = False
+  for line in diff:
+    if line.startswith('  '):
+      if in_diff:
+        result.append('`')
+        in_diff = False
+      result.append(line[2:])
+    elif line.startswith('- '):
+      continue
+    elif line.startswith('+ '):
+      if not in_diff:
+        result.append('`')
+        in_diff = True
+      result.append(line[2:])
+  if in_diff:
+    result.append('`')
+  return ''.join(result)
 
 if __name__ == '__main__':
 
@@ -45,10 +68,14 @@ if __name__ == '__main__':
       start_time = time.perf_counter()
       result = model[model_name].transcribe(p, language="ja")
       result_text = result["text"]
-      execution_time = round(time.perf_counter() - start_time,4)
+      execution_time = round(time.perf_counter() - start_time, 4)
+      
+      # 差異をハイライト
+      highlighted_text = highlight_diff(sample_input[p], result_text)
+      
       if len(result_list) == 0:
         result_list.append(f"# Whisper音声認識検証\n\n## Input  \n{sample_input[p]}\n\n<audio controls src='../src/{p}'></audio>\n\n## Output")
-      result_list.append(f"### {model_name} ( {str(execution_time)}s )\n{result_text}\n")
+      result_list.append(f"### {model_name} ( {str(execution_time)}s )\n{highlighted_text}\n")
     
     createTextFile(p, "\n".join(result_list))
 
