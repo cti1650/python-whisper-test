@@ -53,7 +53,7 @@
     or
 
     # Dockerの起動と停止も合わせて実施
-    sh run_sample.sh
+    make sample
     ```
 
     - src/data/audio.mp3
@@ -66,7 +66,7 @@
     or
 
     # Dockerの起動と停止も合わせて実施
-    sh run_sample2.sh
+    make sample2
     ```
 
     - data/sample1.mp3  
@@ -93,7 +93,7 @@
     or
 
     # Dockerの起動と停止も合わせて実施
-    sh run_main.sh
+    make conv
     ```
 
 ## Whisper モデル一覧
