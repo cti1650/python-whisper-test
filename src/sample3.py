@@ -20,12 +20,14 @@ def highlight_diff(input_text, output_text):
   diff = list(d.compare(input_text, output_text))
   result = []
   in_diff = False
+  correct_chars = 0
   for line in diff:
     if line.startswith('  '):
       if in_diff:
         result.append('`')
         in_diff = False
       result.append(line[2:])
+      correct_chars += 1
     elif line.startswith('- '):
       continue
     elif line.startswith('+ '):
@@ -35,10 +37,14 @@ def highlight_diff(input_text, output_text):
       result.append(line[2:])
   if in_diff:
     result.append('`')
-  return ''.join(result)
+  return ''.join(result), correct_chars
+
+def calculate_recognition_rate(input_text, correct_chars):
+  total_chars = len(input_text)
+  recognition_rate = (correct_chars / total_chars) * 100
+  return recognition_rate, correct_chars, total_chars
 
 if __name__ == '__main__':
-
   model_list = [
     "tiny",
     "base",
@@ -70,12 +76,15 @@ if __name__ == '__main__':
       result_text = result["text"]
       execution_time = round(time.perf_counter() - start_time, 4)
       
-      # 差異をハイライト
-      highlighted_text = highlight_diff(sample_input[p], result_text)
+      # 差異をハイライトし、正しく認識された文字数を取得
+      highlighted_text, correct_chars = highlight_diff(sample_input[p], result_text)
+      
+      # 認識率を計算
+      recognition_rate, correct_chars, total_chars = calculate_recognition_rate(sample_input[p], correct_chars)
       
       if len(result_list) == 0:
         result_list.append(f"# Whisper音声認識検証\n\n## Input  \n{sample_input[p]}\n\n<audio controls src='../src/{p}'></audio>\n\n## Output")
-      result_list.append(f"### {model_name} ( {str(execution_time)}s )\n{highlighted_text}\n")
+      result_list.append(f"### {model_name} ( {str(execution_time)}s )\n{highlighted_text}\n\n認識率: {recognition_rate:.2f}% ({correct_chars}/{total_chars}文字)\n")
     
     createTextFile(p, "\n".join(result_list))
 
