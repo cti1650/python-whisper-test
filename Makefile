@@ -1,6 +1,9 @@
 conv:
 	docker compose run --rm python3 python main.py
 
+conv_sub:
+	docker compose run --rm python3 python sub.py
+
 sample:
 	docker compose run --rm python3 python sample.py
 
