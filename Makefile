@@ -4,6 +4,12 @@ conv:
 conv_sub:
 	docker compose run --rm python3 python sub.py
 
+conv_sub_ja:
+	docker compose run --rm python3 python sub_ja.py
+
+conv_sub_en:
+	docker compose run --rm python3 python sub_en.py
+
 sample:
 	docker compose run --rm python3 python sample.py
 

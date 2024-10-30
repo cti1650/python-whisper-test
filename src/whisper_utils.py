@@ -20,7 +20,8 @@ class WhisperProcessor:
         input_dir: str = '../input',
         include_timestamps: bool = True,
         timestamp_format: str = 'full',
-        output_format: str = 'txt'  # 'txt' or 'html'
+        output_format: str = 'txt',  # 'txt' or 'html'
+        language: str = 'ja' # 'ja' or 'en'
     ):
         """
         WhisperProcessor初期化
@@ -36,6 +37,7 @@ class WhisperProcessor:
         self.include_timestamps = include_timestamps
         self.timestamp_format = timestamp_format
         self.output_format = output_format
+        self.language = language
         os.makedirs(output_dir, exist_ok=True)
 
     def format_line(self, segment: Dict) -> str:
@@ -522,7 +524,7 @@ class WhisperProcessor:
         try:
             result = model.transcribe(
                 file_path,
-                language="ja",
+                language=self.language,
                 verbose=True,
                 word_timestamps=True  # HTML出力の場合は常にTrue
             )

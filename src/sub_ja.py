@@ -12,7 +12,7 @@ def main():
         include_timestamps=WHISPER_CONFIG['timestamps']['include'],
         timestamp_format=WHISPER_CONFIG['timestamps']['format'],
         output_format=WHISPER_CONFIG['output_format'],
-        language=WHISPER_CONFIG['language']
+        language='ja'
     )
     
     print("Starting transcription process...")

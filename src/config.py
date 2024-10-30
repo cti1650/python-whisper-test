@@ -17,5 +17,6 @@ WHISPER_CONFIG = {
         'include': True,
         'format': 'full'
     },
-    'output_format': 'html'  # 'txt' or 'html'
+    'output_format': 'html',  # 'txt' or 'html'
+    'language': 'ja'
 }
