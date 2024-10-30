@@ -13,8 +13,14 @@ sample2:
 sample3:
 	docker compose run --rm python3 python sample3.py
 
+build:
+	docker compose build
+
 down:
+	docker compose down
+
+clean:
 	docker compose down --volumes
 
-all-down:
+all-clean:
 	docker compose down --rmi all --volumes --remove-orphans
