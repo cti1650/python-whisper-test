@@ -55,7 +55,7 @@ class WhisperProcessor:
             return f"{start_time} -> {end_time}: {text}\n"
 
     def generate_html_content(self, segments: List[Dict], media_file: str) -> str:
-        """HTMLコンテンツの生成"""
+        """Enhanced HTMLコンテンツの生成"""
         media_filename = os.path.basename(media_file)
         media_ext = os.path.splitext(media_filename)[1].lower()
         is_video = media_ext in ['.mp4', '.webm', '.ogg']
@@ -69,95 +69,365 @@ class WhisperProcessor:
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>文字起こし - {media_filename}</title>
     <style>
+        :root {{
+            --header-height: 60px;
+            --search-height: 60px;
+            --player-height: 200px;
+            --spacing: 20px;
+        }}
+        
         body {{
             font-family: Arial, sans-serif;
-            max-width: 1200px;
-            margin: 0 auto;
-            padding: 20px;
+            margin: 0;
+            padding: 0;
             background-color: #f5f5f5;
+            height: 100vh;
+            overflow: hidden;
         }}
-        .container {{
+        
+        .header {{
+            height: var(--header-height);
+            background: white;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            padding: 0 20px;
             display: flex;
-            gap: 20px;
-            margin-top: 20px;
+            align-items: center;
+            justify-content: space-between;
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            z-index: 100;
         }}
+        
+        .main-container {{
+            display: flex;
+            height: calc(100vh - var(--header-height) - 40px);
+            margin-top: var(--header-height);
+            gap: var(--spacing);
+            padding: var(--spacing);
+        }}
+        
         .media-container {{
             flex: 1;
-            position: sticky;
-            top: 20px;
             background: white;
-            padding: 20px;
+            padding: var(--spacing);
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            height: fit-content;
+            position: sticky;
+            top: calc(var(--header-height) + var(--spacing));
         }}
+        
         .transcript-container {{
             flex: 1;
+            display: flex;
+            flex-direction: column;
+            gap: var(--spacing);
+            max-width: 50%;
+        }}
+        
+        .search-container {{
             background: white;
-            padding: 20px;
+            padding: 15px;
             border-radius: 8px;
             box-shadow: 0 2px 4px rgba(0,0,0,0.1);
         }}
-        .segment {{
-            padding: 10px;
-            margin: 5px 0;
-            cursor: pointer;
+        
+        .search-input {{
+            width: 100%;
+            box-sizing: border-box;
+            padding: 8px;
+            border: 1px solid #ddd;
             border-radius: 4px;
-            transition: background-color 0.2s;
+            font-size: 1em;
         }}
-        .segment:hover {{
-            background-color: #f0f0f0;
+        
+        .transcript-content {{
+            background: white;
+            padding: var(--spacing);
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            overflow-y: auto;
+            height: calc(100vh - var(--header-height) - var(--search-height) - var(--spacing) * 4);
         }}
-        .segment.active {{
-            background-color: #e3f2fd;
-        }}
-        .timestamp {{
-            color: #666;
-            font-size: 0.9em;
-        }}
+        
         {media_type} {{
             width: 100%;
             border-radius: 4px;
         }}
+        
+        .segment {{
+            padding: 15px;
+            margin: 5px 0;
+            cursor: pointer;
+            border-radius: 4px;
+            transition: all 0.2s;
+            position: relative;
+        }}
+        
+        .segment:hover {{
+            background-color: #f0f0f0;
+        }}
+        
+        .segment.active {{
+            background-color: #e3f2fd;
+        }}
+        
+        .segment.highlight {{
+            background-color: #fff3cd;
+        }}
+        
+        .timestamp {{
+            color: #666;
+            font-size: 0.9em;
+            margin-bottom: 5px;
+            user-select: none;
+        }}
+        
+        .text {{
+            line-height: 1.5;
+        }}
+        
+        .text[contenteditable="true"] {{
+            border: 1px solid #ddd;
+            padding: 5px;
+            border-radius: 4px;
+        }}
+        
+        .segment-actions {{
+            display: none;
+            position: absolute;
+            right: 10px;
+            top: 10px;
+            gap: 5px;
+        }}
+        
+        .segment:hover .segment-actions {{
+            display: flex;
+        }}
+        
+        .btn {{
+            padding: 5px 10px;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 0.9em;
+            background: #f0f0f0;
+            transition: background-color 0.2s;
+        }}
+        
+        .btn:hover {{
+            background: #e0e0e0;
+        }}
+        
+        .header-actions {{
+            display: flex;
+            gap: 10px;
+        }}
+        
+        .tooltip {{
+            position: fixed;
+            background: rgba(0, 0, 0, 0.8);
+            color: white;
+            padding: 5px 10px;
+            border-radius: 4px;
+            font-size: 0.9em;
+            pointer-events: none;
+            z-index: 1000;
+        }}
+        
         @media (max-width: 768px) {{
-            .container {{
+            .main-container {{
                 flex-direction: column;
             }}
+            
+            .media-container, .transcript-container {{
+                max-width: 100%;
+            }}
+            
             .media-container {{
                 position: static;
+            }}
+            
+            .transcript-content {{
+                height: auto;
+                max-height: 50vh;
             }}
         }}
     </style>
 </head>
 <body>
-    <h1>文字起こし - {media_filename}</h1>
-    <div class="container">
+    <div class="header">
+        <h1>文字起こし - {media_filename}</h1>
+        <div class="header-actions">
+            <button class="btn" id="copy-all">全体をコピー</button>
+            <button class="btn" id="copy-all-with-timestamps">タイムスタンプ付きでコピー</button>
+        </div>
+    </div>
+    
+    <div class="main-container">
         <div class="media-container">
             <{media_type} id="media-player" controls>
                 <source src="{media_filename}" type="{media_type}/{media_ext[1:]}">
                 お使いのブラウザは{media_type}タグをサポートしていません。
             </{media_type}>
         </div>
+        
         <div class="transcript-container">
-            <div id="transcript">
+            <div class="search-container">
+                <input type="text" class="search-input" placeholder="テキストを検索..." id="search-input">
+            </div>
+            
+            <div class="transcript-content" id="transcript">
                 {self._generate_segments_html(segments)}
             </div>
         </div>
     </div>
+    
     <script>
         const player = document.getElementById('media-player');
+        const transcript = document.getElementById('transcript');
         const segments = document.querySelectorAll('.segment');
+        const searchInput = document.getElementById('search-input');
         let currentSegment = null;
-
-        // セグメントクリック時の処理
+        let tooltip = null;
+        
+        // ツールチップ作成
+        function createTooltip() {{
+            const tooltip = document.createElement('div');
+            tooltip.className = 'tooltip';
+            tooltip.style.display = 'none';
+            document.body.appendChild(tooltip);
+            return tooltip;
+        }}
+        
+        // テキストコピー機能
+        function copyToClipboard(text) {{
+            navigator.clipboard.writeText(text).then(() => {{
+                showTooltip('コピーしました');
+            }});
+        }}
+        
+        // ツールチップ表示
+        function showTooltip(text, x = null, y = null) {{
+            if (!tooltip) {{
+                tooltip = createTooltip();
+            }}
+            
+            tooltip.textContent = text;
+            tooltip.style.display = 'block';
+            
+            if (x !== null && y !== null) {{
+                tooltip.style.left = `${{x}}px`;
+                tooltip.style.top = `${{y}}px`;
+            }} else {{
+                // デフォルト位置（画面中央上部）
+                tooltip.style.left = '50%';
+                tooltip.style.top = '10%';
+                tooltip.style.transform = 'translateX(-50%)';
+            }}
+            
+            setTimeout(() => {{
+                tooltip.style.display = 'none';
+            }}, 2000);
+        }}
+        
+        // 検索機能
+        searchInput.addEventListener('input', () => {{
+            const searchText = searchInput.value.toLowerCase();
+            segments.forEach(segment => {{
+                const text = segment.querySelector('.text').textContent.toLowerCase();
+                segment.classList.toggle('highlight', searchText ? text.includes(searchText) : false);
+            }});
+        }});
+        
+        // セグメントの編集機能
         segments.forEach(segment => {{
-            segment.addEventListener('click', () => {{
+            const textDiv = segment.querySelector('.text');
+            const timestamp = segment.querySelector('.timestamp').textContent;
+
+            // 再生ボタン
+            const playBtn = document.createElement('button');
+            playBtn.className = 'btn';
+            playBtn.textContent = '再生';
+            playBtn.onclick = (e) => {{
+                e.stopPropagation();
                 const start = parseFloat(segment.dataset.start);
                 player.currentTime = start;
                 player.play();
-            }});
+            }};
+            
+            // 編集ボタン
+            const editBtn = document.createElement('button');
+            editBtn.className = 'btn';
+            editBtn.textContent = '編集';
+            editBtn.onclick = (e) => {{
+                e.stopPropagation();
+                textDiv.contentEditable = textDiv.contentEditable === 'true' ? 'false' : 'true';
+                editBtn.textContent = textDiv.contentEditable === 'true' ? '保存' : '編集';
+                if (textDiv.contentEditable === 'true') {{
+                    player.pause();
+                    textDiv.focus();
+                }}
+            }};
+            
+            // コピーボタン
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'btn';
+            copyBtn.textContent = 'コピー';
+            copyBtn.onclick = (e) => {{
+                e.stopPropagation();
+                const textToCopy = textDiv.textContent.trim();
+                copyToClipboard(textToCopy);
+            }};
+            
+            // タイムスタンプ付きコピーボタン
+            const copyWithTimestampBtn = document.createElement('button');
+            copyWithTimestampBtn.className = 'btn';
+            copyWithTimestampBtn.textContent = 'TS付きコピー';
+            copyWithTimestampBtn.onclick = (e) => {{
+                e.stopPropagation();
+                const textToCopy = `${{timestamp}} ${{textDiv.textContent.trim()}}`;
+                copyToClipboard(textToCopy);
+            }};
+            
+            // ボタンコンテナ
+            const actions = document.createElement('div');
+            actions.className = 'segment-actions';
+            actions.append(playBtn, editBtn, copyBtn, copyWithTimestampBtn);
+            segment.appendChild(actions);
         }});
-
-        // 再生位置に応じてセグメントをハイライト
+        
+        // 全体コピー機能
+        document.getElementById('copy-all').onclick = () => {{
+            const allText = Array.from(segments)
+                .map(segment => segment.querySelector('.text').textContent.trim())
+                .join('\\n');
+            copyToClipboard(allText);
+        }};
+        
+        document.getElementById('copy-all-with-timestamps').onclick = () => {{
+            const allText = Array.from(segments)
+                .map(segment => {{
+                    const timestamp = segment.querySelector('.timestamp').textContent;
+                    const text = segment.querySelector('.text').textContent.trim();
+                    return `${{timestamp}} ${{text}}`;
+                }})
+                .join('\\n');
+            copyToClipboard(allText);
+        }};
+        
+        // セグメントクリック時の再生
+        // segments.forEach(segment => {{
+        //     segment.addEventListener('click', () => {{
+        //         const start = parseFloat(segment.dataset.start);
+        //         player.currentTime = start;
+        //         player.play();
+        //     }});
+        // }});
+        
+        // 再生位置に応じたセグメントのハイライトと自動スクロール
         player.addEventListener('timeupdate', () => {{
             const currentTime = player.currentTime;
             segments.forEach(segment => {{
@@ -173,14 +443,7 @@ class WhisperProcessor:
                         currentSegment = segment;
                         
                         // スクロール位置の調整
-                        const container = document.getElementById('transcript');
-                        const segmentTop = segment.offsetTop;
-                        const containerTop = container.scrollTop;
-                        const containerHeight = container.clientHeight;
-                        
-                        if (segmentTop < containerTop || segmentTop > containerTop + containerHeight) {{
-                            segment.scrollIntoView({{ behavior: 'smooth', block: 'center' }});
-                        }}
+                        transcript.scrollTop = segment.offsetTop - transcript.offsetTop;
                     }}
                 }}
             }});
@@ -188,7 +451,7 @@ class WhisperProcessor:
     </script>
 </body>
 </html>
-        """
+    """
         return html_template
 
     def _generate_segments_html(self, segments: List[Dict]) -> str:
