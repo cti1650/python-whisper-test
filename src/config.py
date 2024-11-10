@@ -6,7 +6,10 @@ WHISPER_CONFIG = {
             # "base",
             "small",
             # "medium",
-            # "large"
+            # "large",
+            # "large-v2",
+            # "large-v3",
+            # "turbo",
         ]
     },
     'paths': {
@@ -18,5 +21,7 @@ WHISPER_CONFIG = {
         'format': 'full'
     },
     'output_format': 'html',  # 'txt' or 'html'
-    'language': 'ja'
+    'language': 'ja',
+    'device': 'cpu',
+    'compute_type': 'int8'
 }

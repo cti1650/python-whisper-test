@@ -90,10 +90,20 @@
     ```
     docker-compose exec -it python3 python main.py
 
-    or
+    # or
 
     # Dockerの起動と停止も合わせて実施
     make conv
+
+    # or
+
+    # 動画と画像の自動変換も追加で対応(whisper)
+    make conv_sub
+
+    # or
+
+    # 動画と画像の自動変換も追加で対応(faster-whisper)
+    make conv_faster
     ```
 
 ## つまずいた点
@@ -123,3 +133,5 @@
 - [Python - ディクショナリーの初期化、4つの方法](https://codechacha.com/ja/python-initialize-dict/#3-fromkeys-%E3%81%A7%E8%BE%9E%E6%9B%B8%E3%82%92%E5%88%9D%E6%9C%9F%E5%8C%96%E3%81%99%E3%82%8B)  
 - [Pythonでリスト（配列）に要素を追加するappend, extend, insert | note.nkmk.me](https://note.nkmk.me/python-list-append-extend-insert/)  
 - [Python の time で時間を計測する。 | 民主主義に乾杯](https://python.ms/time/#_1-%E4%BD%BF%E3%81%84%E6%96%B9-%E3%81%9D%E3%81%AE1)  
+- [openai/whisper: Robust Speech Recognition via Large-Scale Weak Supervision](https://github.com/openai/whisper)  
+- [SYSTRAN/faster-whisper: Faster Whisper transcription with CTranslate2](https://github.com/SYSTRAN/faster-whisper)  

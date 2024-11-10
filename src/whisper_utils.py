@@ -3,6 +3,7 @@ from datetime import timedelta
 from typing import List, Dict, Optional
 import shutil
 from pathlib import Path
+import whisper
 
 def format_timestamp(seconds: float) -> str:
     """秒数を[HH:MM:SS.mmm]形式に変換"""
@@ -39,6 +40,17 @@ class WhisperProcessor:
         self.output_format = output_format
         self.language = language
         os.makedirs(output_dir, exist_ok=True)
+
+    def set_model(self, model_name: str, device: str = 'cpu', compute_type: str = 'int8') -> None:
+        """
+        モデルの設定
+        Args:
+            model_name: モデル名 ('tiny', 'small', 'base', 'medium', 'large', 'large-v3')
+            device: デバイス ('cpu' or 'cuda')
+            compute_type: 計算精度 ('float16', 'int8_float16', 'int8')
+        """
+        self.model_name = model_name
+        self.model = whisper.load_model(model_name)
 
     def format_line(self, segment: Dict) -> str:
         """セグメントを指定されたフォーマットで文字列に変換"""
@@ -476,15 +488,17 @@ class WhisperProcessor:
     def create_output_file(
         self,
         base_file_path: str,
-        segments: List[Dict],
-        model_name: Optional[str] = None
+        segments: List[Dict]
     ) -> None:
         """出力ファイルの作成"""
         file_name = os.path.basename(base_file_path)
         base_name = os.path.splitext(file_name)[0]
+
+        if not self.model_name:
+            return
         
-        if model_name:
-            output_name = f"{base_name}_{model_name}"
+        if self.model_name:
+            output_name = f"{base_name}_{self.model_name}"
         else:
             output_name = base_name
 
@@ -515,20 +529,21 @@ class WhisperProcessor:
 
     def process_audio_file(
         self,
-        file_path: str,
-        model,
-        model_name: Optional[str] = None
+        file_path: str
     ) -> bool:
         """音声ファイルの処理"""
         print(f"Processing: {file_path}")
         try:
-            result = model.transcribe(
+            if not self.model or not self.model_name:
+                print("Model not set. Please set the model before processing.")
+                return False
+            result = self.model.transcribe(
                 file_path,
                 language=self.language,
+                word_timestamps=True,  # HTML出力の場合は常にTrue
                 verbose=True,
-                word_timestamps=True  # HTML出力の場合は常にTrue
             )
-            self.create_output_file(file_path, result["segments"], model_name)
+            self.create_output_file(file_path, result["segments"])
             return True
         except Exception as e:
             print(f"Error processing {file_path}: {str(e)}")
