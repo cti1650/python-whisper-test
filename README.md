@@ -96,6 +96,19 @@
     make conv
     ```
 
+## つまずいた点
+
+- python:3.10のイメージビルド時にエラーが発生
+  ```
+  failed to solve: docker.io/library/python:3.10: failed to resolve source metadata for docker.io/library/python:3.10: error getting credentials - err: exit status 1, out: ``
+  ```
+
+  - 解決策
+  別途イメージをダウンロードしておく
+  ```
+  docker pull python:3.10
+  ```
+
 ## Whisper モデル一覧
 
 ![モデル一覧](https://raw.githubusercontent.com/cm-nakamura-shogo/devio-image/main/whisper-trial-japanese/img/whisper-trial-japanese_2022-09-22-21-53-13.png)
