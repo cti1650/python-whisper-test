@@ -1,8 +1,7 @@
 import os
 from datetime import timedelta
-from typing import List, Dict, Optional
+from typing import List, Dict
 import shutil
-from pathlib import Path
 import whisper
 
 def format_timestamp(seconds: float) -> str:
