@@ -1,7 +1,7 @@
 import os
 import glob
-from faster_whisper_utils import FasterWhisperProcessor
-from moviepy_utils import convert_audio_file
+from utils.faster_whisper_utils import FasterWhisperProcessor
+from utils.moviepy_utils import convert_audio_file
 from config import WHISPER_CONFIG
 
 def faster(language = None):

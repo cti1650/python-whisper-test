@@ -3,7 +3,7 @@ from datetime import timedelta
 from typing import List, Dict, Optional
 import shutil
 from pathlib import Path
-from whisper_utils import WhisperProcessor
+from utils.whisper_utils import WhisperProcessor
 from faster_whisper import WhisperModel
 
 class FasterWhisperProcessor(WhisperProcessor):

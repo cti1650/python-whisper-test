@@ -1,7 +1,7 @@
 import os
 import glob
-from whisper_utils import WhisperProcessor
-from moviepy_utils import convert_audio_file
+from utils.whisper_utils import WhisperProcessor
+from utils.moviepy_utils import convert_audio_file
 from config import WHISPER_CONFIG
 
 def sub(language = None):
